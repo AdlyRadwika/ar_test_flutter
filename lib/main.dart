@@ -1,3 +1,4 @@
+import 'package:ar_project/example_four.dart';
 import 'package:ar_project/example_one.dart';
 import 'package:ar_project/example_three.dart';
 import 'package:ar_project/example_two.dart';
@@ -59,6 +60,13 @@ class _MainAppState extends State<MainApp> {
                           builder: (context) => const ExampleThree(),
                         )),
                     child: const Text("Contoh Ketiga")),
+                ElevatedButton(
+                    onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ExampleFour(),
+                        )),
+                    child: const Text("Contoh Keempat")),
               ],
             ),
           ),
