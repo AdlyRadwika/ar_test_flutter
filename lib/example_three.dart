@@ -126,40 +126,40 @@ class _ExampleThreeState extends State<ExampleThree> {
   }
 
   onPanStarted(String nodeName) {
-    print("Started panning node $nodeName");
+    print("Started panning node " + nodeName);
   }
 
   onPanChanged(String nodeName) {
-    print("Continued panning node $nodeName");
+    print("Continued panning node " + nodeName);
   }
 
   onPanEnded(String nodeName, Matrix4 newTransform) {
-    print("Ended panning node $nodeName");
-    // final pannedNode = nodes.firstWhere((element) => element.name == nodeName);
+    print("Ended panning node " + nodeName);
+    final pannedNode = nodes.firstWhere((element) => element.name == nodeName);
 
     /*
     * Uncomment the following command if you want to keep the transformations of the Flutter representations of the nodes up to date
     * (e.g. if you intend to share the nodes through the cloud)
     */
-    //pannedNode.transform = newTransform;
+    pannedNode.transform = newTransform;
   }
 
   onRotationStarted(String nodeName) {
-    print("Started rotating node $nodeName");
+    print("Started rotating node " + nodeName);
   }
 
   onRotationChanged(String nodeName) {
-    print("Continued rotating node $nodeName");
+    print("Continued rotating node " + nodeName);
   }
 
   onRotationEnded(String nodeName, Matrix4 newTransform) {
-    print("Ended rotating node $nodeName");
-    // final rotatedNode = nodes.firstWhere((element) => element.name == nodeName);
+    print("Ended rotating node " + nodeName);
+    final rotatedNode = nodes.firstWhere((element) => element.name == nodeName);
 
     /*
     * Uncomment the following command if you want to keep the transformations of the Flutter representations of the nodes up to date
     * (e.g. if you intend to share the nodes through the cloud)
     */
-    //rotatedNode.transform = newTransform;
+    rotatedNode.transform = newTransform;
   }
 }
