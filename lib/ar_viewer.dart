@@ -56,6 +56,8 @@ class _ARViewerState extends State<ARViewer> {
     this.arObjectManager.onRotationStart = _onRotationStarted;
     this.arObjectManager.onRotationChange = _onRotationChanged;
     this.arObjectManager.onRotationEnd = _onRotationEnded;
+
+    _addARObjectInFrontOfCamera();
   }
 
   _onPanStarted(String nodeName) {
@@ -88,6 +90,31 @@ class _ARViewerState extends State<ARViewer> {
     // rotatedNode?.transform = newTransform;
   }
 
+  void _addARObjectInFrontOfCamera() async {
+    final cameraPose = await arSessionManager.getCameraPose();
+    if (cameraPose != null) {
+      final translation = cameraPose.getTranslation();
+      final rotation = cameraPose.getRotation();
+
+      final newPosition = translation + rotation * Vector3(0, 0, -1);
+
+      final newTransform = Matrix4.compose(
+        newPosition,
+        Quaternion.identity(),
+        Vector3.all(0.2),
+      );
+
+      final newNode = ARNode(
+        type: NodeType.webGLB,
+        uri: widget.object,
+        transformation: newTransform,
+      );
+
+      arObjectManager.addNode(newNode);
+      webObjectNode = newNode;
+    }
+  }
+
   void _onPanUpdate(DragUpdateDetails details) {
     final dx = details.delta.dx;
     final dy = details.delta.dy;
@@ -102,16 +129,6 @@ class _ARViewerState extends State<ARViewer> {
     }
   }
 
-  void _onScaleUpdate(ScaleUpdateDetails details) {
-    setState(() {
-      scaleValue *= details.scale;
-    });
-
-    if (webObjectNode != null) {
-      webObjectNode!.scale = Vector3.all(scaleValue);
-    }
-  }
-
   Future onWebObjectAtButtonPressed() async {
     setState(() {
       isAdd = !isAdd;
@@ -121,12 +138,7 @@ class _ARViewerState extends State<ARViewer> {
       arObjectManager.removeNode(webObjectNode!);
       webObjectNode = null;
     } else {
-      var newNode = ARNode(
-          type: NodeType.webGLB,
-          uri: widget.object,
-          scale: Vector3(0.2, 0.2, 0.2));
-      bool? didAddWebNode = await arObjectManager.addNode(newNode);
-      webObjectNode = (didAddWebNode!) ? newNode : null;
+      _addARObjectInFrontOfCamera();
     }
   }
 
@@ -135,7 +147,6 @@ class _ARViewerState extends State<ARViewer> {
     return Scaffold(
       appBar: AppBar(),
       body: GestureDetector(
-        onScaleUpdate: _onScaleUpdate,
         onPanUpdate: _onPanUpdate,
         child: ARView(
           onARViewCreated: onARViewCreated,
