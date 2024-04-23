@@ -1,7 +1,4 @@
-import 'package:ar_project/example_four.dart';
-import 'package:ar_project/example_one.dart';
-import 'package:ar_project/example_three.dart';
-import 'package:ar_project/example_two.dart';
+import 'package:ar_project/ar_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -17,6 +14,15 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
+  final _lamp =
+      "https://github.com/KhronosGroup/glTF-Sample-Assets/raw/main/Models/AnisotropyBarnLamp/glTF-Binary/AnisotropyBarnLamp.glb";
+  final _camera =
+      "https://github.com/KhronosGroup/glTF-Sample-Assets/raw/main/Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb";
+  final _avocado =
+      "https://github.com/KhronosGroup/glTF-Sample-Assets/raw/main/Models/Avocado/glTF-Binary/Avocado.glb";
+  final _box =
+      "https://github.com/KhronosGroup/glTF-Sample-Assets/raw/main/Models/Box/glTF-Binary/Box.glb";
+
   Future<void> _getPermission() async {
     await Permission.camera.request();
   }
@@ -43,30 +49,38 @@ class _MainAppState extends State<MainApp> {
                     onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ExampleOne(),
+                          builder: (context) => ARViewer(
+                            object: _lamp,
+                          ),
                         )),
-                    child: const Text("Contoh Pertama")),
+                    child: const Text("Lamp")),
                 ElevatedButton(
                     onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ExampleTwo(),
+                          builder: (context) => ARViewer(
+                            object: _camera,
+                          ),
                         )),
-                    child: const Text("Contoh Kedua")),
+                    child: const Text("Camera")),
                 ElevatedButton(
                     onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ExampleThree(),
+                          builder: (context) => ARViewer(
+                            object: _avocado,
+                          ),
                         )),
-                    child: const Text("Contoh Ketiga")),
+                    child: const Text("Avocado")),
                 ElevatedButton(
                     onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ExampleFour(),
+                          builder: (context) => ARViewer(
+                            object: _box,
+                          ),
                         )),
-                    child: const Text("Contoh Keempat")),
+                    child: const Text("Box")),
               ],
             ),
           ),
