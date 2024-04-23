@@ -30,10 +30,11 @@ class _ARViewerState extends State<ARViewer> {
   }
 
   void onARViewCreated(
-      ARSessionManager arSessionManager,
-      ARObjectManager arObjectManager,
-      ARAnchorManager arAnchorManager,
-      ARLocationManager arLocationManager) {
+    ARSessionManager arSessionManager,
+    ARObjectManager arObjectManager,
+    ARAnchorManager arAnchorManager,
+    ARLocationManager arLocationManager,
+  ) {
     this.arSessionManager = arSessionManager;
     this.arObjectManager = arObjectManager;
 
@@ -66,13 +67,9 @@ class _ARViewerState extends State<ARViewer> {
 
   _onPanEnded(String nodeName, Matrix4 newTransform) {
     debugPrint("Ended panning node $nodeName");
-    final pannedNode = webObjectNode;
+    // final pannedNode = webObjectNode;
 
-    /*
-    * Uncomment the following command if you want to keep the transformations of the Flutter representations of the nodes up to date
-    * (e.g. if you intend to share the nodes through the cloud)
-    */
-    pannedNode?.transform = newTransform;
+    // pannedNode?.transform = newTransform;
   }
 
   _onRotationStarted(String nodeName) {
@@ -85,13 +82,23 @@ class _ARViewerState extends State<ARViewer> {
 
   _onRotationEnded(String nodeName, Matrix4 newTransform) {
     debugPrint("Ended rotating node $nodeName");
-    final rotatedNode = webObjectNode;
+    // final rotatedNode = webObjectNode;
 
-    /*
-    * Uncomment the following command if you want to keep the transformations of the Flutter representations of the nodes up to date
-    * (e.g. if you intend to share the nodes through the cloud)
-    */
-    rotatedNode?.transform = newTransform;
+    // rotatedNode?.transform = newTransform;
+  }
+
+  void _onPanUpdate(DragUpdateDetails details) {
+    final dx = details.delta.dx;
+    final dy = details.delta.dy;
+
+    final rotationMatrix = Matrix4.identity()
+      ..rotateY(dx * 0.01)
+      ..rotateX(dy * 0.01);
+
+    if (webObjectNode != null) {
+      final newTransform = rotationMatrix * webObjectNode!.transform;
+      webObjectNode!.transform = newTransform;
+    }
   }
 
   Future onWebObjectAtButtonPressed() async {
@@ -116,9 +123,12 @@ class _ARViewerState extends State<ARViewer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: ARView(
-        onARViewCreated: onARViewCreated,
-        planeDetectionConfig: PlaneDetectionConfig.horizontalAndVertical,
+      body: GestureDetector(
+        onPanUpdate: _onPanUpdate,
+        child: ARView(
+          onARViewCreated: onARViewCreated,
+          planeDetectionConfig: PlaneDetectionConfig.horizontalAndVertical,
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: onWebObjectAtButtonPressed,
