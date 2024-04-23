@@ -115,17 +115,21 @@ class _ARViewerState extends State<ARViewer> {
     }
   }
 
-  void _onPanUpdate(DragUpdateDetails details) {
-    final dx = details.delta.dx;
-    final dy = details.delta.dy;
-
-    final rotationMatrix = Matrix4.identity()
-      ..rotateY(dx * 0.01)
-      ..rotateX(dy * 0.01);
-
+  void _onPanUpdate(DragUpdateDetails details) async {
     if (webObjectNode != null) {
-      final newTransform = rotationMatrix * webObjectNode!.transform;
-      webObjectNode!.transform = newTransform;
+      // Get the camera pose
+      final cameraPose = await arSessionManager.getCameraPose();
+
+      if (cameraPose != null) {
+        // Calculate the translation based on the camera's forward vector and pan delta
+        final forwardVector = cameraPose.getRotation().getColumn(2);
+        final translation =
+            forwardVector.normalized() * details.delta.dy * 0.01;
+
+        // Apply translation to the object's position
+        final newPosition = webObjectNode!.position + translation;
+        webObjectNode!.position = newPosition;
+      }
     }
   }
 
