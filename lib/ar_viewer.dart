@@ -1,4 +1,5 @@
 import 'package:ar_flutter_plugin/ar_flutter_plugin.dart';
+import 'package:ar_flutter_plugin/datatypes/config_planedetection.dart';
 import 'package:ar_flutter_plugin/datatypes/node_types.dart';
 import 'package:ar_flutter_plugin/managers/ar_anchor_manager.dart';
 import 'package:ar_flutter_plugin/managers/ar_location_manager.dart';
@@ -23,15 +24,9 @@ class _ARViewerState extends State<ARViewer> {
   bool isAdd = false;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: ARView(onARViewCreated: onARViewCreated),
-      floatingActionButton: FloatingActionButton(
-        onPressed: onWebObjectAtButtonPressed,
-        child: Icon(isAdd ? Icons.remove : Icons.add),
-      ),
-    );
+  void dispose() {
+    arSessionManager.dispose();
+    super.dispose();
   }
 
   void onARViewCreated(
@@ -47,10 +42,56 @@ class _ARViewerState extends State<ARViewer> {
           showPlanes: true,
           customPlaneTexturePath: "assets/triangle.png",
           showWorldOrigin: true,
-          handleTaps: true,
+          showAnimatedGuide: false,
+          handlePans: true,
           handleRotation: true,
         );
     this.arObjectManager.onInitialize();
+
+    this.arObjectManager.onPanStart = _onPanStarted;
+    this.arObjectManager.onPanChange = _onPanChanged;
+    this.arObjectManager.onPanEnd = _onPanEnded;
+    this.arObjectManager.onRotationStart = _onRotationStarted;
+    this.arObjectManager.onRotationChange = _onRotationChanged;
+    this.arObjectManager.onRotationEnd = _onRotationEnded;
+  }
+
+  _onPanStarted(String nodeName) {
+    debugPrint("Started panning node $nodeName");
+  }
+
+  _onPanChanged(String nodeName) {
+    debugPrint("Continued panning node $nodeName");
+  }
+
+  _onPanEnded(String nodeName, Matrix4 newTransform) {
+    debugPrint("Ended panning node $nodeName");
+    final pannedNode = webObjectNode;
+
+    /*
+    * Uncomment the following command if you want to keep the transformations of the Flutter representations of the nodes up to date
+    * (e.g. if you intend to share the nodes through the cloud)
+    */
+    pannedNode?.transform = newTransform;
+  }
+
+  _onRotationStarted(String nodeName) {
+    debugPrint("Started rotating node $nodeName");
+  }
+
+  _onRotationChanged(String nodeName) {
+    debugPrint("Continued rotating node $nodeName");
+  }
+
+  _onRotationEnded(String nodeName, Matrix4 newTransform) {
+    debugPrint("Ended rotating node $nodeName");
+    final rotatedNode = webObjectNode;
+
+    /*
+    * Uncomment the following command if you want to keep the transformations of the Flutter representations of the nodes up to date
+    * (e.g. if you intend to share the nodes through the cloud)
+    */
+    rotatedNode?.transform = newTransform;
   }
 
   Future onWebObjectAtButtonPressed() async {
@@ -72,8 +113,17 @@ class _ARViewerState extends State<ARViewer> {
   }
 
   @override
-  void dispose() {
-    arSessionManager.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: ARView(
+        onARViewCreated: onARViewCreated,
+        planeDetectionConfig: PlaneDetectionConfig.horizontalAndVertical,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: onWebObjectAtButtonPressed,
+        child: Icon(isAdd ? Icons.remove : Icons.add),
+      ),
+    );
   }
 }
