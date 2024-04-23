@@ -115,21 +115,32 @@ class _ARViewerState extends State<ARViewer> {
     }
   }
 
-  void _onPanUpdate(DragUpdateDetails details) async {
+  void _onPanUpdate(DragUpdateDetails details) {
     if (webObjectNode != null) {
-      // Get the camera pose
-      final cameraPose = await arSessionManager.getCameraPose();
+      // Calculate the rotation based on the pan delta
+      final dx = details.delta.dx;
+      final dy = details.delta.dy;
 
-      if (cameraPose != null) {
-        // Calculate the translation based on the camera's forward vector and pan delta
-        final forwardVector = cameraPose.getRotation().getColumn(2);
-        final translation =
-            forwardVector.normalized() * details.delta.dy * 0.01;
+      // Calculate the rotation axis (the camera's up vector)
+      final upVector = Vector3(0, 1, 0);
 
-        // Apply translation to the object's position
-        final newPosition = webObjectNode!.position + translation;
-        webObjectNode!.position = newPosition;
-      }
+      // Calculate the rotation angle based on pan deltas
+      final rotationAngleX = dx * 0.01;
+      final rotationAngleY = dy * 0.01;
+
+      // Convert current rotation to a quaternion
+      final currentRotation = webObjectNode!.rotation;
+      final currentQuaternion = Quaternion.fromRotation(currentRotation);
+
+      // Apply rotation around the camera's up vector
+      final rotationX = Quaternion.axisAngle(upVector, rotationAngleX);
+      final rotationY = Quaternion.axisAngle(upVector, rotationAngleY);
+
+      // Combine rotations
+      final newRotation = rotationX * rotationY * currentQuaternion;
+
+      // Set the new rotation back to the object
+      webObjectNode!.rotationFromQuaternion = newRotation;
     }
   }
 
