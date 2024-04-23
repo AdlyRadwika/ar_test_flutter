@@ -22,6 +22,7 @@ class _ARViewerState extends State<ARViewer> {
   late ARObjectManager arObjectManager;
   ARNode? webObjectNode;
   bool isAdd = false;
+  double scaleValue = 0;
 
   @override
   void dispose() {
@@ -101,6 +102,16 @@ class _ARViewerState extends State<ARViewer> {
     }
   }
 
+  void _onScaleUpdate(ScaleUpdateDetails details) {
+    setState(() {
+      scaleValue *= details.scale;
+    });
+
+    if (webObjectNode != null) {
+      webObjectNode!.scale = Vector3.all(scaleValue);
+    }
+  }
+
   Future onWebObjectAtButtonPressed() async {
     setState(() {
       isAdd = !isAdd;
@@ -124,6 +135,7 @@ class _ARViewerState extends State<ARViewer> {
     return Scaffold(
       appBar: AppBar(),
       body: GestureDetector(
+        onScaleUpdate: _onScaleUpdate,
         onPanUpdate: _onPanUpdate,
         child: ARView(
           onARViewCreated: onARViewCreated,
